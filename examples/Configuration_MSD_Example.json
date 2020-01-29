@@ -1,0 +1,199 @@
+{
+  "General": {
+    "Hyperparameters": [
+      {
+        "type": ".NumWorker",
+        "params": {
+          "value": 8
+        }
+      },
+      {
+        "type": ".BatchSize",
+        "params": {
+          "value": 1
+        }
+      }
+    ],
+    "Models": [
+      {
+        "type": "eisen.models.segmentation.vnet.VNet",
+        "params": {
+          "input_names": [
+            "image"
+          ],
+          "output_names": [
+            "prediction"
+          ],
+          "input_channels": 1,
+          "output_channels": 1,
+          "n_filters": 8,
+          "filter_size": 3,
+          "outputs_activation": "sigmoid",
+          "normalization": "none"
+        }
+      }
+    ]
+  },
+  "Training": {
+    "Datasets": [
+      {
+        "type": "eisen.datasets.msd.MSDDataset",
+        "params": {
+          "json_file": "dataset.json",
+          "phase": "training"
+        }
+      }
+    ],
+    "Readers": [
+      {
+        "type": "eisen.io.imaging.LoadNiftyFromFilename",
+        "params": {
+          "fields": [
+            "image",
+            "label"
+          ],
+          "canonical": false
+        }
+      }
+    ],
+    "Transforms": [
+      {
+        "type": "eisen.transforms.imaging.ResampleNiftiVolumes",
+        "params": {
+          "fields": [],
+          "resolution": [
+            1,
+            1,
+            1
+          ],
+          "interpolation": "linear"
+        }
+      },
+      {
+        "type": "eisen.transforms.imaging.NiftiToNumpy",
+        "params": {
+          "fields": [
+            "image",
+            "label"
+          ]
+        }
+      },
+      {
+        "type": "eisen.transforms.imaging.CropCenteredSubVolumes",
+        "params": {
+          "fields": [
+            "image",
+            "label"
+          ],
+          "size": [
+            64,
+            64,
+            64
+          ]
+        }
+      },
+      {
+        "type": "eisen.transforms.imaging.ThresholdValues",
+        "params": {
+          "fields": [
+            "label"
+          ],
+          "threshold": 0.5,
+          "direction": "greater"
+        }
+      },
+      {
+        "type": "eisen.transforms.imaging.MapValues",
+        "params": {
+          "fields": [
+            "image"
+          ],
+          "min_value": 0,
+          "max_value": 1,
+          "channelwise": true
+        }
+      },
+      {
+        "type": "eisen.transforms.imaging.AddChannelDimension",
+        "params": {
+          "fields": [
+            "image",
+            "label"
+          ]
+        }
+      }
+    ],
+    "Losses": [
+      {
+        "type": "eisen.ops.losses.dice.DiceLoss",
+        "params": {
+          "input_names": [
+            "prediction",
+            "label"
+          ],
+          "output_names": [
+            "dice_loss"
+          ],
+          "weight": 1,
+          "dim": [
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      }
+    ],
+    "Metrics": [
+      {
+        "type": "eisen.ops.metrics.dice.DiceMetric",
+        "params": {
+          "input_names": [
+            "prediction",
+            "label"
+          ],
+          "output_names": [
+            "dice_metric"
+          ],
+          "weight": 1,
+          "dim": [
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      }
+    ],
+    "Optimizer": [
+      {
+        "type": "torch.optim.Adam",
+        "params": {
+          "lr": 0.0001,
+          "betas": [
+            0.9,
+            0.999
+          ],
+          "eps": 1e-8,
+          "weight_decay": 0,
+          "amsgrad": false
+        }
+      }
+    ],
+    "Workflow": [
+      {
+        "type": "eisen.utils.workflows.training.Training",
+        "params": {
+          "gpu": false,
+          "data_parallel": false
+        }
+      }
+    ],
+    "Hooks": [
+      {
+        "type": "eisen.utils.logging.logs.LoggingHook",
+        "params": {}
+      }
+    ]
+  }
+}

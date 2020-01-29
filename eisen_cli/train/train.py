@@ -146,17 +146,6 @@ def eisen_training(configuration, epochs, data_dir, artifacts_dir, resume):
 
             optimizer = optimizer_object(**phase_dictionary['Optimizer'][0]['params'], params=model.parameters())
 
-        # HOOKS
-        # Instantiate Hooks
-        logging.info('INFO: setting up the Hooks...')
-
-        for hook in phase_dictionary['Hooks']:
-            logging.debug('DEBUG: setting up hook type {}'.format(hook['type']))
-
-            hook_object = import_string(hook['type'])
-
-            hooks.append(hook_object(**hook['params']))
-
         # WORKFLOW
         # Instantiate work-flows
 
@@ -174,6 +163,17 @@ def eisen_training(configuration, epochs, data_dir, artifacts_dir, resume):
         )
 
         workflows[phase] = workflow
+
+        # HOOKS
+        # Instantiate Hooks
+        logging.info('INFO: setting up the Hooks...')
+
+        for hook in phase_dictionary['Hooks']:
+            logging.debug('DEBUG: setting up hook type {}'.format(hook['type']))
+
+            hook_object = import_string(hook['type'])
+
+            hooks.append(hook_object(**hook['params']))
 
     # RUN
     # run training for the requested number of epochs
