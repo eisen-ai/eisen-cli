@@ -11,6 +11,7 @@ setup(
     version=VERSION,
     description='Eisen Command Line Interface (CLI)',
     packages=find_packages(),
+    install_requires=install_requires,
     entry_points={
         'console_scripts': [
             'eisen = eisen_cli.main:cli'
