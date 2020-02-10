@@ -1,4 +1,6 @@
 import logging
+import numpy as np
+import torch
 
 from eisen_cli.utils import json_file_to_dict, import_string
 from eisen.utils import EisenModuleWrapper
@@ -44,6 +46,10 @@ def eisen_training(configuration, epochs, data_dir, artifacts_dir, resume):
 
         if entry['type'] == '.NumWorkers':
             num_workers = entry['params']['value']
+
+        if entry['type'] == '.Seed':
+            np.random.seed(entry['params']['value'])
+            torch.manual_seed(entry['params']['value'])
 
     # For each phase of the workflow [training, validation, testing]
 
