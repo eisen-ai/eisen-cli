@@ -179,7 +179,7 @@ def eisen_training(configuration, epochs, data_dir, artifacts_dir, resume):
 
             hook_object = import_string(hook['type'])
 
-            hooks.append(hook_object(**hook['params']))
+            hooks.append(hook_object(workflows[phase].id, phase, artifacts_dir, **hook['params']))
 
     # RUN
     # run training for the requested number of epochs
