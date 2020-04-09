@@ -74,7 +74,7 @@ def eisen_training(configuration, epochs, data_dir, artifacts_dir, resume):
             logging.debug('DEBUG: setting up readers type {}'.format(reader['type']))
 
             transform_object = import_string(reader['type'])
-            readers_list.append(transform_object(**reader['params'], data_dir=data_dir))
+            readers_list.append(transform_object(data_dir=data_dir, **reader['params']))
 
         reader = Compose(readers_list)
 
@@ -98,9 +98,9 @@ def eisen_training(configuration, epochs, data_dir, artifacts_dir, resume):
         dataset_object = import_string(phase_dictionary['Datasets'][0]['type'])
 
         dataset = dataset_object(
-            **phase_dictionary['Datasets'][0]['params'],
             transform=data_pipeline,
-            data_dir=data_dir
+            data_dir=data_dir,
+            **phase_dictionary['Datasets'][0]['params']
         )
 
         data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
@@ -150,7 +150,7 @@ def eisen_training(configuration, epochs, data_dir, artifacts_dir, resume):
 
             optimizer_object = import_string(phase_dictionary['Optimizer'][0]['type'])
 
-            optimizer = optimizer_object(**phase_dictionary['Optimizer'][0]['params'], params=model.parameters())
+            optimizer = optimizer_object(params=model.parameters(), **phase_dictionary['Optimizer'][0]['params'])
 
         # WORKFLOW
         # Instantiate work-flows
@@ -160,12 +160,12 @@ def eisen_training(configuration, epochs, data_dir, artifacts_dir, resume):
         workflow_object = import_string(phase_dictionary['Workflow'][0]['type'])
 
         workflow = workflow_object(
-            **phase_dictionary['Workflow'][0]['params'],
             model=model,
             losses=losses,
             optimizer=optimizer,
             metrics=metrics,
-            data_loader=data_loader
+            data_loader=data_loader,
+            **phase_dictionary['Workflow'][0]['params'],
         )
 
         workflows[phase] = workflow
