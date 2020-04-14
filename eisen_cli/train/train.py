@@ -112,7 +112,14 @@ def eisen_training(configuration, epochs, data_dir, artifacts_dir, resume):
 
         model_object = import_string(model['type'])
 
-        model = EisenModuleWrapper(module=model_object, **model['params'])
+        input_names = model['params'].pop('input_names')
+        output_names = model['params'].pop('output_names')
+
+        model = EisenModuleWrapper(
+            module=model_object(**model['params']),
+            input_names=input_names,
+            output_names=output_names
+        )
 
         # Instantiate metrics
 
@@ -125,7 +132,16 @@ def eisen_training(configuration, epochs, data_dir, artifacts_dir, resume):
 
             metric_object = import_string(metric['type'])
 
-            metrics.append(EisenModuleWrapper(module=metric_object, **metric['params']))
+            input_names = metric['params'].pop('input_names')
+            output_names = metric['params'].pop('output_names')
+
+            metrics.append(
+                EisenModuleWrapper(
+                    module=metric_object(**metric['params']),
+                    input_names = input_names,
+                    output_names = output_names
+                )
+            )
 
         losses = None
         optimizer = None
@@ -142,7 +158,16 @@ def eisen_training(configuration, epochs, data_dir, artifacts_dir, resume):
 
                 loss_object = import_string(loss['type'])
 
-                losses.append(EisenModuleWrapper(module=loss_object, **loss['params']))
+                input_names = loss['params'].pop('input_names')
+                output_names = loss['params'].pop('output_names')
+
+                losses.append(
+                    EisenModuleWrapper(
+                        module=loss_object(**loss['params']),
+                        input_names = input_names,
+                        output_names = output_names
+                    )
+                )
 
             # Instantiate optimizer
 
