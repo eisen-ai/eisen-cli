@@ -14,16 +14,20 @@ SUPPORTED_PHASES = ['Training', 'Validation']
 
 def eisen_training(configuration, epochs, data_dir, artifacts_dir, resume):
     """
+    This function parses a configuration file and creates all the necessary objects and worflow components
+    to execute training. Everything will be built according to the configuration file.
+
     :param configuration: path of configuration file for the job
-    :type configuration: str
+    :type configuration: Path
     :param epochs: number of epochs requested for training
     :type epochs: int
     :param data_dir: base path for the data of this job
-    :type data_dir: str
+    :type data_dir: Path
     :param artifacts_dir: base path for the artifacts of this job
-    :type artifacts_dir: str
+    :type artifacts_dir: Path
     :param resume: use pre-existing artifacts to resume training
     :type resume: bool
+
     :return: None
     """
 
